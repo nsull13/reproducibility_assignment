@@ -99,7 +99,8 @@ The authors report that there are no exclusions, so no pre-processing should be 
 
 ## Descriptive statistics
 
-The first finding we'll try and reproduce is the average accuracy on location questions across all pre-surprise trials
+The first finding we'll try and reproduce is the average accuracy on location questions across all pre-surprise trials. From the original article: 
+
 > On the presurprise trials, 89% of responses in the location task were correct
 
 ```{r}
@@ -113,7 +114,11 @@ ps_acc_val  <- mean(ps_accuracy$location_accuracy)
 reportObject <- reproCheck(reportedValue = '.89', obtainedValue = ps_acc_val, valueType = 'mean')
 ```
 
-The second finding we'll try and reproduce is the average accuracies on the color, identity, and location questions in the surprise trial
+The second finding we'll try and reproduce is the average accuracies on the color, identity, and location questions in the surprise trial. From the original article:
+
+>Only 6 of 20 (30%) participants correctly reported the color of the target letter
+>Furthermore, performance on the identity task (25% correct) was exactly at chance level
+>Moreover, in the surprise trial, participants’ performance on the location task, unlike their performance on the color and identity tasks, was good (80% correct)
 
 ```{r}
 #This will filter the data so it only has performance on the surprise trial
@@ -131,7 +136,11 @@ reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc, value
 
 ```
 
-Next we'll look at the performance on color, identity, and location questions on the control trials. They split it out for each individual control trial, so there will be a chunk of r code below for each trial (157 through 160) for ease of making all the comparisons.
+Next we'll look at the performance on color, identity, and location questions on the control trials. They split it out for each individual control trial, so there will be a chunk of r code below for each trial (157 through 160) for ease of making all the comparisons. As quoted from the original article:
+
+>Participants exhibited a dramatic increase in reporting accuracy for the target letter’s color (70% correct) and identity (75% correct) on the first control trial (i.e., the trial immediately after the surprise trial).
+
+>Performance on these two tasks remained constant on the final three control trials (color: 75%, 70%, and 80% correct; identity: 75%, 80%, and 75% correct). Participants’ performance on the location task was almost the same on the surprise trial (80% correct) as on the control trials (80%, 85%, 80%, and 70% correct).
 
 ```{r}
 #First let's look at the first control trial
@@ -196,7 +205,9 @@ reportObject <- reproCheck(reportedValue = '.70', obtainedValue = loc_acc_con4, 
 
 ## Inferential statistics
 
-The first inferential test we want to reproduce is a chi square test comparing performance on the color question between the surprise trial and the first control trial
+The first inferential test we want to reproduce is a chi square test comparing performance on the color question between the surprise trial and the first control trial. As quoted in the original article: 
+
+>The improvement in each case was significant—color: 70% versus 30%, χ2(1, N = 40) = 6.40, p = .011, ϕ = .40
 
 ```{r}
 #First we'll create a new table that we can actually run a chi square test on
@@ -234,7 +245,9 @@ reportObject <- reproCheck(reportedValue = '.011', obtainedValue = chi_sq_color$
 reportObject <- reproCheck(reportedValue = '.40', obtainedValue = chi_color_phi, valueType = 'phi')
 ```
 
-Next we want to reproduce the chi square test comparing performance on the identity question between the surprise trial and the first control trial
+Next we want to reproduce the chi square test comparing performance on the identity question between the surprise trial and the first control trial. As quoted from the original article:
+
+>identity: 75% versus 25%, χ2(1, N = 40) = 10.00, p < .005, ϕ = .50.
 
 ```{r}
 #First we'll create a new table that we can actually run a chi square test on
@@ -275,6 +288,8 @@ reportObject <- reproCheck(reportedValue = '.50', obtainedValue = chi_iden_phi, 
 
 
 # Step 5: Conclusion
+
+The effort to reproduce the original findings was a success. All findings were able to be exactly reproduced as mentioned in the original article. The one time that I encountered a minor difficulty was in reproducing the effects of the chi square tests, where I was able to reproduce the chi square values but not the p-values. Once I realized I had to turn the correcting that was going on the test off, however, I was able to exactly reproduce the results. 
 
 [Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
 
