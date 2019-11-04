@@ -74,7 +74,7 @@ reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = 
 
 This will set the working directory and then read in the data
 ```{r}
-setwd("/Users/nickysullivan/Documents/Github/reproducibility_assignment/GroupD_9-2-2015/data/materials-9859-Top-level_materials") 
+setwd("data/materials-9859-Top-level_materials")
 data_reproduce <- read.csv("12022-Exp1.csv") 
 ```
 
