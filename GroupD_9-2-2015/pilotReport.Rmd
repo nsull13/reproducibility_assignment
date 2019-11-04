@@ -103,35 +103,94 @@ The first finding we'll try and reproduce is the average accuracy on location qu
 > On the presurprise trials, 89% of responses in the location task were correct
 
 ```{r}
+#This will filter so we only have values from the pre-surprise trials
 ps_accuracy <- data_reproduce_tidy %>%
-  filter(trial < 156) %>%
-  summarise(acc = mean(location_accuracy))
-ps_accuracy
+  filter(trial < 156)
+#And this will give us the mean accuracy on location questions
+ps_acc_val  <- mean(ps_accuracy$location_accuracy)
+
+#Now let's do the value comparison
+reportObject <- reproCheck(reportedValue = '.89', obtainedValue = ps_acc_val, valueType = 'mean')
 ```
 
 The second finding we'll try and reproduce is the average accuracies on the color, identity, and location questions in the surprise trial
 
 ```{r}
+#This will filter the data so it only has performance on the surprise trial
 sur_accuracy <- data_reproduce_tidy %>%
-  filter(trial == 156) %>%
-  summarise(count = n(),
-            color_acc = mean(color_accuracy), 
-            iden_acc = mean(identity_accuracy),
-            loc_acc = mean(location_accuracy))
-sur_accuracy
+  filter(trial == 156) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc = mean(sur_accuracy$color_accuracy) 
+iden_acc = mean(sur_accuracy$identity_accuracy)
+loc_acc = mean(sur_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.30', obtainedValue = color_acc, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.25', obtainedValue = iden_acc, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc, valueType = 'mean')
+
 ```
 
-Next we'll look at the performance on color, identity, and location questions on the control trials
+Next we'll look at the performance on color, identity, and location questions on the control trials. They split it out for each individual control trial, so there will be a chunk of r code below for each trial (157 through 160) for ease of making all the comparisons.
 
 ```{r}
-control_accuracy <- data_reproduce_tidy %>%
-  filter(trial > 156) %>%
-  group_by(trial) %>%
-  summarise(count = n(),
-            color_acc = mean(color_accuracy),
-            iden_acc = mean(identity_accuracy),
-            loc_acc = mean(location_accuracy))
-control_accuracy
+#First let's look at the first control trial
+control1_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 157) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con1 = mean(control1_accuracy$color_accuracy)
+iden_acc_con1 = mean(control1_accuracy$identity_accuracy)
+loc_acc_con1 = mean(control1_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = color_acc_con1, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con1, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc_con1, valueType = 'mean')
+```
+
+```{r}
+#Now let's look at the second control trial
+control2_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 158) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con2 = mean(control2_accuracy$color_accuracy)
+iden_acc_con2 = mean(control2_accuracy$identity_accuracy)
+loc_acc_con2 = mean(control2_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = color_acc_con2, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con2, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.85', obtainedValue = loc_acc_con2, valueType = 'mean')
+```
+
+```{r}
+#Now let's look at the third control trial
+control3_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 159) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con3 = mean(control3_accuracy$color_accuracy)
+iden_acc_con3 = mean(control3_accuracy$identity_accuracy)
+loc_acc_con3 = mean(control3_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = color_acc_con3, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = iden_acc_con3, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc_con3, valueType = 'mean')
+```
+
+```{r}
+#And finally let's look at the last control trial
+control4_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 160) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con4 = mean(control4_accuracy$color_accuracy)
+iden_acc_con4 = mean(control4_accuracy$identity_accuracy)
+loc_acc_con4 = mean(control4_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = color_acc_con4, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con4, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = loc_acc_con4, valueType = 'mean')
 ```
 
 
@@ -140,10 +199,80 @@ control_accuracy
 The first inferential test we want to reproduce is a chi square test comparing performance on the color question between the surprise trial and the first control trial
 
 ```{r}
-control_comp <-data_reproduce_tidy %>%
-  filter(trial == 156 | trial == 157)
-chisq.test()
+#First we'll create a new table that we can actually run a chi square test on
+col_comp <-data_reproduce_tidy %>%
+  filter(trial == 156 | trial == 157) %>%
+  group_by(trial) %>%
+  summarise(total_correct = sum(color_accuracy),
+            total_incorrect = (20 - sum(color_accuracy)))
+#And then we'll get rid of the trial column so it isn't included
+col_comp_test <- col_comp %>%
+  select(total_correct, total_incorrect)
+
+#Then we'll run the chi square test
+chi_sq_color <- chisq.test(col_comp_test, correct = FALSE)
+
+#And finally we'll calculate the phi using the formula sqrt(chi/n). I couldn't figure out a way to do this using a package in r, which is why I'm doing it manually
+chi_color_phi <- sqrt(6.4004/40)
+
+#Now let's do all of the value comparisons we want to do: n, df, x2, p, and phi
+
+#We'll start with n, for which we'll need to find the total n of the comparisons
+n_chi_col <- sum(col_comp_test)
+reportObject <- reproCheck(reportedValue = '40', obtainedValue = n_chi_col, valueType = 'n')
+
+#Next we can do the df
+reportObject <- reproCheck(reportedValue = '1', obtainedValue = chi_sq_color$parameter, valueType = 'df')
+
+#Next the x2
+reportObject <- reproCheck(reportedValue = '6.40', obtainedValue = chi_sq_color$statistic, valueType = 'x2')
+
+#Next the p value
+reportObject <- reproCheck(reportedValue = '.011', obtainedValue = chi_sq_color$p.value, valueType = 'p')
+
+#And finally the phi
+reportObject <- reproCheck(reportedValue = '.40', obtainedValue = chi_color_phi, valueType = 'phi')
 ```
+
+Next we want to reproduce the chi square test comparing performance on the identity question between the surprise trial and the first control trial
+
+```{r}
+#First we'll create a new table that we can actually run a chi square test on
+iden_comp <- data_reproduce_tidy %>%
+  filter(trial == 156 | trial == 157) %>%
+  group_by(trial) %>%
+  summarise(total_correct = sum(identity_accuracy),
+            total_incorrect = (20 - sum(identity_accuracy)))
+
+#And then we'll get rid of the trial column so it isn't included
+iden_comp_test <- iden_comp %>%
+  select(total_correct, total_incorrect)
+
+#Then we'll run the chi square test
+chi_sq_iden <- chisq.test(iden_comp_test, correct = FALSE)
+
+#And finally we'll calculate the phi using the formula sqrt(chi/n). I couldn't find a way to do this using a package in r, which is why I'm doing it manually
+chi_iden_phi <- sqrt(10/40)
+
+#Now let's do all of the value comparisons we want to do: n, df, x2, p, and phi
+
+#We'll start with n, for which we'll need to find the total n of the comparisons
+n_chi_iden <- sum(iden_comp_test)
+reportObject <- reproCheck(reportedValue = '40', obtainedValue = n_chi_iden, valueType = 'n')
+
+#Next we can do the df
+reportObject <- reproCheck(reportedValue = '1', obtainedValue = chi_sq_iden$parameter, valueType = 'df')
+
+#Next the x2
+reportObject <- reproCheck(reportedValue = '10.00', obtainedValue = chi_sq_iden$statistic, valueType = 'x2')
+
+#Next the p value
+reportObject <- reproCheck(reportedValue = '<.005', obtainedValue = chi_sq_iden$p.value, valueType = 'p', eyeballCheck = TRUE)
+
+#And finally the phi
+reportObject <- reproCheck(reportedValue = '.50', obtainedValue = chi_iden_phi, valueType = 'phi')
+```
+
 
 # Step 5: Conclusion
 
