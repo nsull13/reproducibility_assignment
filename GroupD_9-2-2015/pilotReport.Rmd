@@ -28,14 +28,12 @@ completionDate <- NA # insert the date of final report completion in US format e
 
 #### Methods summary: 
 
-[PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
 Each participant completes 160 trials, the first 155 of which are identical and involve a fixation screen, then a brief (150ms) display of the stimulus, which consisted of four items, one in each corner of the screen. The stimulus consisted of three numbers and one letter, each in a different color (red, blue, yellow, or magenta). After seeing the stimulus, participants are then asked to report which corner the letter was in by clicking a corresponding number (1 through 4). On the last 5 trials, participants see the same type of stimulus, but instead of being asked to report where the letter was, they are asked to report what letter was shown and what color it was (order counterbalanced between participants). The first of these trials (#156 overall) is considered the 'surprise' trial, and the remaining four are considered 'control' trials
 
 ------
 
 #### Target outcomes: 
 
-[PILOT copy and paste the exact target outcomes as written in in targetOutcomes.md]  
 For this article you should focus on the findings reported in results section of Experiment 1a.
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
@@ -52,7 +50,6 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 
 # Step 1: Load packages and prepare report object
 
-[PILOT/COPILOT Some useful packages are being loaded below. You can add any additional ones you might need too.]
 
 ```{r}
 # load packages
@@ -291,8 +288,6 @@ reportObject <- reproCheck(reportedValue = '.50', obtainedValue = chi_iden_phi, 
 
 The effort to reproduce the original findings was a success. All findings were able to be exactly reproduced as mentioned in the original article. The one time that I encountered a minor difficulty was in reproducing the effects of the chi square tests, where I was able to reproduce the chi square values but not the p-values. Once I realized I had to turn the correcting that was going on the test off, however, I was able to exactly reproduce the results. 
 
-[Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
-
 
 [PILOT/COPILOT DOD NOT EDIT THE CODE CHUNK BELOW]
 
@@ -326,8 +321,6 @@ if(reportType == "copilot"){
 ```
 
 # Session information
-
-[This function will output information about the package versions used in this report:]
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
