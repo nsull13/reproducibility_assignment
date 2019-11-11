@@ -1,0 +1,323 @@
+---
+title: "Reproducibility Report"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+# Report Details
+
+[PILOT/COPILOT ENTER RELEVANT REPORT DETAILS HERE]
+
+```{r}
+articleID <- "9-2-2015" # insert the article ID code here e.g., "10-3-2015"
+reportType <- 'copilot' # specify whether this is the 'pilot' report or 'copilot' report
+pilotNames <- "Nicky Sullivan" # insert the pilot's name here e.g., "Tom Hardwicke".
+copilotNames <- "Elizabeth Mortenson" # # insert the co-pilot's name here e.g., "Michael Frank".
+pilotTTC <- 300 # insert the pilot's estimated time to complete (in minutes, it is fine to approximate) e.g., 120
+copilotTTC <- 35 # insert the co-pilot's estimated time to complete (in minutes, it is fine to approximate) e.g., 120
+pilotStartDate <- as.Date("11/03/2019") # insert the piloting start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+copilotStartDate <- as.Date("11/08/2019") # insert the co-piloting start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("11/10/2019") # insert the date of final report completion in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+```
+
+------
+
+#### Methods summary: 
+
+Each participant completes 160 trials, the first 155 of which are identical and involve a fixation screen, then a brief (150ms) display of the stimulus, which consisted of four items, one in each corner of the screen. The stimulus consisted of three numbers and one letter, each in a different color (red, blue, yellow, or magenta). After seeing the stimulus, participants are then asked to report which corner the letter was in by clicking a corresponding number (1 through 4). On the last 5 trials, participants see the same type of stimulus, but instead of being asked to report where the letter was, they are asked to report what letter was shown and what color it was (order counterbalanced between participants). The first of these trials (#156 overall) is considered the 'surprise' trial, and the remaining four are considered 'control' trials
+
+------
+
+#### Target outcomes: 
+
+For this article you should focus on the findings reported in results section of Experiment 1a.
+
+Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
+
+>On the presurprise trials, 89% of responses in the location task were correct, which indicates that participants could easily locate the target by using the critical attribute. To analyze the data from the surprise trial, we first divided participants into two groups defined by the order of the surprise tasks (identity task first vs. color task first). We found that the results were almost the same in these two groups. Accordingly, we combined the data for these groups in the analyses reported here. Only 6 of 20 (30%) participants correctly reported the color of the target letter, which is not much better than chance level of 25% (because there were four choices). Furthermore, performance on the identity task (25% correct) was exactly at chance level. These results demonstrate that participants were not capable of reporting a task-relevant attribute of a stimulus that had reached awareness less than 1 s before (i.e., attribute amnesia). Moreover, in the surprise trial, participants’ performance on the location task, unlike their performance on the color and identity tasks, was good (80% correct), and in fact was approximately as good as their performance on the location task in the presurprise trials (89% correct). This indicates that the poor performance on the color and identity tasks was not induced by the surprise test itself; it more likely reflects participants’ failure to remember these attributes. Participants exhibited a dramatic increase in reporting accuracy for the target letter’s color (70% correct) and identity (75% correct) on the first control trial (i.e., the trial immediately after the surprise trial). The improvement in each case was significant—color: 70% versus 30%, χ2(1, N = 40) = 6.40, p = .011, ϕ = .40; identity: 75% versus 25%, χ2(1, N = 40) = 10.00, p < .005, ϕ = .50. Performance on these two tasks remained constant on the final three control trials (color: 75%, 70%, and 80% correct; identity: 75%, 80%, and 75% correct). Participants’ performance on the location task was almost the same on the surprise trial (80% correct) as on the control trials (80%, 85%, 80%, and 70% correct). These results indicate a crucial role for expectation in controlling participants’ ability to report the attributes of a consciously perceived object. Therefore, Experiment 1a showed that when participants did not expect to report a particular attribute of an attended object, they were incapable of doing so, even when that same attribute had reached awareness immediately prior to the test.
+------
+
+```{r global_options, include=FALSE}
+# sets up some formatting options for the R Markdown document
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+# Step 1: Load packages and prepare report object
+
+
+```{r}
+# load packages
+library(tidyverse) # for data munging
+library(knitr) # for kable table formating
+library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
+library(readxl) # import excel files
+library(ReproReports) # custom reporting functions
+```
+
+
+```{r}
+# Prepare report object. This will be updated automatically by the reproCheck function each time values are compared
+reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = NA, valueType = NA, percentageError = NA, comparisonOutcome = NA, eyeballCheck = NA)
+```
+
+# Step 2: Load data
+
+This will set the working directory and then read in the data
+```{r}
+setwd("data/materials-9859-Top-level_materials")
+data_reproduce <- read.csv("12022-Exp1.csv") 
+```
+
+# Step 3: Tidy data
+
+This section wil rename all of the columns to be more descriptive (based on the MetaData document included with the data)
+
+```{r}
+data_reproduce_tidy <- data_reproduce %>%
+  rename(subid = X6, trial = X1.1, target_color = X1.2, target_identity = X3, target_location = X3.1, color_response = X0, identity_response = X0.1, location_response = X1.3, color_accuracy = X0.2, identity_accuracy = X0.3, location_accuracy = X0.4)
+
+```
+
+# Step 4: Run analysis
+
+## Pre-processing
+
+The authors report that there are no exclusions, so no pre-processing should be necessary
+
+```{r}
+```
+
+## Descriptive statistics
+
+The first finding we'll try and reproduce is the average accuracy on location questions across all pre-surprise trials. From the original article: 
+
+> On the presurprise trials, 89% of responses in the location task were correct
+
+```{r}
+#This will filter so we only have values from the pre-surprise trials
+ps_accuracy <- data_reproduce_tidy %>%
+  filter(trial < 156)
+#And this will give us the mean accuracy on location questions
+ps_acc_val  <- mean(ps_accuracy$location_accuracy)
+
+#Now let's do the value comparison
+reportObject <- reproCheck(reportedValue = '.89', obtainedValue = ps_acc_val, valueType = 'mean')
+```
+
+The second finding we'll try and reproduce is the average accuracies on the color, identity, and location questions in the surprise trial. From the original article:
+
+>Only 6 of 20 (30%) participants correctly reported the color of the target letter
+>Furthermore, performance on the identity task (25% correct) was exactly at chance level
+>Moreover, in the surprise trial, participants’ performance on the location task, unlike their performance on the color and identity tasks, was good (80% correct)
+
+```{r}
+#This will filter the data so it only has performance on the surprise trial
+sur_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 156) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc = mean(sur_accuracy$color_accuracy) 
+iden_acc = mean(sur_accuracy$identity_accuracy)
+loc_acc = mean(sur_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.30', obtainedValue = color_acc, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.25', obtainedValue = iden_acc, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc, valueType = 'mean')
+
+```
+
+Next we'll look at the performance on color, identity, and location questions on the control trials. They split it out for each individual control trial, so there will be a chunk of r code below for each trial (157 through 160) for ease of making all the comparisons. As quoted from the original article:
+
+>Participants exhibited a dramatic increase in reporting accuracy for the target letter’s color (70% correct) and identity (75% correct) on the first control trial (i.e., the trial immediately after the surprise trial).
+
+>Performance on these two tasks remained constant on the final three control trials (color: 75%, 70%, and 80% correct; identity: 75%, 80%, and 75% correct). Participants’ performance on the location task was almost the same on the surprise trial (80% correct) as on the control trials (80%, 85%, 80%, and 70% correct).
+
+```{r}
+#First let's look at the first control trial
+control1_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 157) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con1 = mean(control1_accuracy$color_accuracy)
+iden_acc_con1 = mean(control1_accuracy$identity_accuracy)
+loc_acc_con1 = mean(control1_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = color_acc_con1, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con1, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc_con1, valueType = 'mean')
+```
+
+```{r}
+#Now let's look at the second control trial
+control2_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 158) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con2 = mean(control2_accuracy$color_accuracy)
+iden_acc_con2 = mean(control2_accuracy$identity_accuracy)
+loc_acc_con2 = mean(control2_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = color_acc_con2, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con2, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.85', obtainedValue = loc_acc_con2, valueType = 'mean')
+```
+
+```{r}
+#Now let's look at the third control trial
+control3_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 159) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con3 = mean(control3_accuracy$color_accuracy)
+iden_acc_con3 = mean(control3_accuracy$identity_accuracy)
+loc_acc_con3 = mean(control3_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = color_acc_con3, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = iden_acc_con3, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = loc_acc_con3, valueType = 'mean')
+```
+
+```{r}
+#And finally let's look at the last control trial
+control4_accuracy <- data_reproduce_tidy %>%
+  filter(trial == 160) 
+#And now we can calculate the mean performances for each of the three questions
+color_acc_con4 = mean(control4_accuracy$color_accuracy)
+iden_acc_con4 = mean(control4_accuracy$identity_accuracy)
+loc_acc_con4 = mean(control4_accuracy$location_accuracy)
+
+#And now we can do the value comparisons
+reportObject <- reproCheck(reportedValue = '.80', obtainedValue = color_acc_con4, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.75', obtainedValue = iden_acc_con4, valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.70', obtainedValue = loc_acc_con4, valueType = 'mean')
+```
+
+
+## Inferential statistics
+
+The first inferential test we want to reproduce is a chi square test comparing performance on the color question between the surprise trial and the first control trial. As quoted in the original article: 
+
+>The improvement in each case was significant—color: 70% versus 30%, χ2(1, N = 40) = 6.40, p = .011, ϕ = .40
+
+```{r}
+#First we'll create a new table that we can actually run a chi square test on
+col_comp <-data_reproduce_tidy %>%
+  filter(trial == 156 | trial == 157) %>%
+  group_by(trial) %>%
+  summarise(total_correct = sum(color_accuracy),
+            total_incorrect = (20 - sum(color_accuracy)))
+#And then we'll get rid of the trial column so it isn't included
+col_comp_test <- col_comp %>%
+  select(total_correct, total_incorrect)
+
+#Then we'll run the chi square test
+chi_sq_color <- chisq.test(col_comp_test, correct = FALSE)
+
+#And finally we'll calculate the phi using the formula sqrt(chi/n). I couldn't figure out a way to do this using a package in r, which is why I'm doing it manually
+
+chi_color_phi <- sqrt(6.4004/40)
+
+ #I think the psych package has a way to do this but I futzed around a little bit and I think it would actually require more lines of code, so doesn't seem terribly efficient. --em 
+
+#Now let's do all of the value comparisons we want to do: n, df, x2, p, and phi
+
+#We'll start with n, for which we'll need to find the total n of the comparisons
+n_chi_col <- sum(col_comp_test)
+reportObject <- reproCheck(reportedValue = '40', obtainedValue = n_chi_col, valueType = 'n')
+
+#Next we can do the df
+reportObject <- reproCheck(reportedValue = '1', obtainedValue = chi_sq_color$parameter, valueType = 'df')
+
+#Next the x2
+reportObject <- reproCheck(reportedValue = '6.40', obtainedValue = chi_sq_color$statistic, valueType = 'x2')
+
+#Next the p value
+reportObject <- reproCheck(reportedValue = '.011', obtainedValue = chi_sq_color$p.value, valueType = 'p')
+
+#And finally the phi
+reportObject <- reproCheck(reportedValue = '.40', obtainedValue = chi_color_phi, valueType = 'phi')
+```
+
+Next we want to reproduce the chi square test comparing performance on the identity question between the surprise trial and the first control trial. As quoted from the original article:
+
+>identity: 75% versus 25%, χ2(1, N = 40) = 10.00, p < .005, ϕ = .50.
+
+```{r}
+#First we'll create a new table that we can actually run a chi square test on
+iden_comp <- data_reproduce_tidy %>%
+  filter(trial == 156 | trial == 157) %>%
+  group_by(trial) %>%
+  summarise(total_correct = sum(identity_accuracy),
+            total_incorrect = (20 - sum(identity_accuracy)))
+
+#And then we'll get rid of the trial column so it isn't included
+iden_comp_test <- iden_comp %>%
+  select(total_correct, total_incorrect)
+
+#Then we'll run the chi square test
+chi_sq_iden <- chisq.test(iden_comp_test, correct = FALSE)
+
+#And finally we'll calculate the phi using the formula sqrt(chi/n). I couldn't find a way to do this using a package in r, which is why I'm doing it manually
+chi_iden_phi <- sqrt(10/40)
+
+#Now let's do all of the value comparisons we want to do: n, df, x2, p, and phi
+
+#We'll start with n, for which we'll need to find the total n of the comparisons
+n_chi_iden <- sum(iden_comp_test)
+reportObject <- reproCheck(reportedValue = '40', obtainedValue = n_chi_iden, valueType = 'n')
+
+#Next we can do the df
+reportObject <- reproCheck(reportedValue = '1', obtainedValue = chi_sq_iden$parameter, valueType = 'df')
+
+#Next the x2
+reportObject <- reproCheck(reportedValue = '10.00', obtainedValue = chi_sq_iden$statistic, valueType = 'x2')
+
+#Next the p value
+reportObject <- reproCheck(reportedValue = '<.005', obtainedValue = chi_sq_iden$p.value, valueType = 'p', eyeballCheck = TRUE)
+
+#And finally the phi
+reportObject <- reproCheck(reportedValue = '.50', obtainedValue = chi_iden_phi, valueType = 'phi')
+```
+
+
+# Step 5: Conclusion
+
+The effort to reproduce the original findings was a success. All findings were able to be exactly reproduced as mentioned in the original article. The one time that I encountered a minor difficulty was in reproducing the effects of the chi square tests, where I was able to reproduce the chi square values but not the p-values. Once I realized I had to turn the correcting that was going on the test off, however, I was able to exactly reproduce the results. 
+
+
+```{r}
+reportObject <- reportObject %>%
+  filter(dummyRow == FALSE) %>% # remove the dummy row
+  select(-dummyRow) %>% # remove dummy row designation
+  mutate(articleID = articleID) %>% # add variables to report 
+  select(articleID, everything()) # make articleID first column
+
+# decide on final outcome
+if(any(reportObject$comparisonOutcome %in% c("MAJOR_ERROR", "DECISION_ERROR"))){
+  finalOutcome <- "Failure"
+}else{
+  finalOutcome <- "Success"
+}
+
+# collate report extra details
+reportExtras <- data.frame(articleID, pilotNames, copilotNames, pilotTTC, copilotTTC, pilotStartDate, copilotStartDate, completionDate, finalOutcome)
+
+# save report objects
+if(reportType == "pilot"){
+  write_csv(reportObject, "pilotReportDetailed.csv")
+  write_csv(reportExtras, "pilotReportExtras.csv")
+}
+
+if(reportType == "copilot"){
+  write_csv(reportObject, "copilotReportDetailed.csv")
+  write_csv(reportExtras, "copilotReportExtras.csv")
+}
+```
+
+# Session information
+
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+devtools::session_info()
+```
